@@ -1,26 +1,55 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 250 244 240;
+  --foreground: 45 45 45;
+  --card: 0 0 0;
+  --card-foreground: 45 45 45;
+  --popover: 0 0 0;
+  --popover-foreground: 45 45 45;
+  --primary: 198 150 62;
+  --primary-foreground: 255 255 255;
+  --secondary: 27 107 90;
+  --secondary-foreground: 255 255 255;
+  --muted: 245 240 232;
+  --muted-foreground: 107 114 128;
+  --accent: 245 240 232;
+  --accent-foreground: 45 45 45;
+  --destructive: 239 68 68;
+  --destructive-foreground: 255 255 255;
+  --border: 229 224 216;
+  --input: 229 224 216;
+  --ring: 198 150 62;
+  --radius: 0.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --background: 45 45 45;
+  --foreground: 245 240 232;
+  --card: 45 45 45;
+  --card-foreground: 245 240 232;
+  --popover: 45 45 45;
+  --popover-foreground: 245 240 232;
+  --primary: 198 150 62;
+  --primary-foreground: 45 45 45;
+  --secondary: 27 107 90;
+  --secondary-foreground: 245 240 232;
+  --muted: 64 64 64;
+  --muted-foreground: 161 161 161;
+  --accent: 64 64 64;
+  --accent-foreground: 245 240 232;
+  --destructive: 239 68 68;
+  --destructive-foreground: 245 240 232;
+  --border: 64 64 64;
+  --input: 64 64 64;
+  --ring: 198 150 62;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: hsl(var(--border));
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }

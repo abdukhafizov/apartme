@@ -1,21 +1,25 @@
 import {NextIntlClientProvider} from 'next-intl';
-import {QueryClient, QueryClientProvider} from '@tanstack/react-query';
-
-const queryClient = new QueryClient();
+import QueryProvider from './query-provider';
+import { Header } from '@/components/layout/header';
+import { Footer } from '@/components/layout/footer';
 
 export default async function LocaleLayout({
   children,
-  params
+  params,
 }: {
   children: React.ReactNode;
   params: Promise<{locale: string}>;
 }) {
-  const { locale } = await params;
+  await params;
   return (
     <NextIntlClientProvider>
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
+      <QueryProvider>
+        <div className="min-h-screen flex flex-col">
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
+      </QueryProvider>
     </NextIntlClientProvider>
   );
 }

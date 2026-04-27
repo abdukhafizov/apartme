@@ -7,86 +7,150 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  image     String?
-  role      String   @default("user") // user, host
-  listings  Listing[]
-  bookings  Booking[]
-  reviews   Review[]
-  messages  Message[]
-  wishlists Wishlist[]
-  chats     Chat[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  phone         String?
+  avatar        String?
+  bio           String?
+  isHost        Boolean   @default(false)
+  isVerified    Boolean   @default(false)
+  language      String    @default("ru")
+  currency      String    @default("UZS")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  listings      Listing[]
+  bookings      Booking[]
+  reviews       Review[]
+  sentMessages  Message[]
+  accounts      Account[]
+  wishlists     Wishlist[]
+  chats         ChatParticipant[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
 
 model Listing {
-  id          String        @id @default(cuid())
-  title       String
-  description String
-  price       Int
-  currency    String        @default("UZS")
-  location    String
-  latitude    Float?
-  longitude   Float?
-  images      String[]
-  amenities   String[]
-  maxGuests   Int
-  bedrooms    Int
-  bathrooms   Int
-  hostId      String
-  host        User          @relation(fields: [hostId], references: [id])
-  bookings    Booking[]
-  reviews     Review[]
-  wishlists   Wishlist[]
+  id            String   @id @default(cuid())
+  titleRu       String
+  titleEn       String
+  titleUz       String
+  descRu        String
+  descEn        String
+  descUz        String
+  type          String   // apartment | house | room | guesthouse
+  status        String   @default("pending") // active | paused | pending | rejected
+  pricePerNight Int      // in UZS
+  cleaningFee   Int      @default(0)
+  minNights     Int      @default(1)
+  maxGuests     Int
+  bedrooms      Int
+  bathrooms     Int
+  areaSqm       Float?
+  district      String
+  address       String
+  lat           Float
+  lng           Float
+  photos        String[]
+  amenities     String[]
+  checkInTime   String   @default("14:00")
+  checkOutTime  String   @default("12:00")
+  instantBook   Boolean  @default(false)
+  hostId        String
+  host          User     @relation(fields: [hostId], references: [id])
+  bookings      Booking[]
+  reviews       Review[]
+  wishlists     Wishlist[]
   availabilities Availability[]
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Booking {
-  id         String   @id @default(cuid())
-  listingId  String
-  listing    Listing  @relation(fields: [listingId], references: [id])
-  userId     String
-  user       User     @relation(fields: [userId], references: [id])
-  checkIn    DateTime
-  checkOut   DateTime
-  guests     Int
-  totalPrice Int
-  status     String   @default("pending") // pending, confirmed, cancelled
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id            String   @id @default(cuid())
+  propertyId    String
+  property      Listing  @relation(fields: [propertyId], references: [id])
+  guestId       String
+  guest         User     @relation(fields: [guestId], references: [id])
+  checkIn       DateTime
+  checkOut      DateTime
+  guests        Int
+  nightlyRate   Int
+  nights        Int
+  cleaningFee   Int
+  serviceFee    Int
+  totalPrice    Int      // in UZS
+  currency      String   @default("UZS")
+  status        String   @default("pending") // pending | confirmed | active | completed | cancelled
+  paymentMethod String
+  paymentStatus String   @default("unpaid")
+  cancellationReason String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Review {
-  id        String   @id @default(cuid())
-  listingId String
-  listing   Listing  @relation(fields: [listingId], references: [id])
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  rating    Int
-  comment   String?
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  listingId  String
+  listing    Listing  @relation(fields: [listingId], references: [id])
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  rating     Float
+  ratingClean    Int
+  ratingComm     Int
+  ratingLocation Int
+  ratingValue    Int
+  textRu     String?
+  textEn     String?
+  textUz     String?
+  photos     String[]
+  createdAt  DateTime @default(now())
 }
 
 model Message {
-  id        String   @id @default(cuid())
-  chatId    String
-  chat      Chat     @relation(fields: [chatId], references: [id])
-  senderId  String
-  sender    User     @relation(fields: [senderId], references: [id])
-  content   String
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  chatId     String
+  chat       Chat     @relation(fields: [chatId], references: [id])
+  senderId   String
+  sender     User     @relation(fields: [senderId], references: [id])
+  text       String?
+  imageUrl   String?
+  status     String   @default("sent") // sent | delivered | read
+  createdAt  DateTime @default(now())
 }
 
 model Chat {
-  id           String    @id @default(cuid())
-  participants User[]
+  id           String             @id @default(cuid())
+  participants ChatParticipant[]
   messages     Message[]
-  createdAt    DateTime  @default(now())
+  createdAt    DateTime           @default(now())
+}
+
+model ChatParticipant {
+  id     String @id @default(cuid())
+  chatId String
+  chat   Chat   @relation(fields: [chatId], references: [id])
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([chatId, userId])
 }
 
 model Wishlist {
@@ -96,6 +160,8 @@ model Wishlist {
   listingId String
   listing   Listing  @relation(fields: [listingId], references: [id])
   createdAt DateTime @default(now())
+
+  @@unique([userId, listingId])
 }
 
 model Availability {
@@ -103,5 +169,9 @@ model Availability {
   listingId String
   listing   Listing  @relation(fields: [listingId], references: [id])
   date      DateTime
-  available Boolean  @default(true)
+  isBlocked Boolean  @default(false)
+  price     Int?     // override price for this date
+  createdAt DateTime @default(now())
+
+  @@unique([listingId, date])
 }
